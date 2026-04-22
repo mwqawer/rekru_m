@@ -2,38 +2,40 @@ using Millenium_rekru.Exceptions;
 
 namespace Millenium_rekru.Services;
 
-public class DataProcessingService : IDataProcessingService
+public class DataProcessingService(ICacheService _cacheService) : IDataProcessingService
 {
-    public static Dictionary<string, bool> ProcessedData = new Dictionary<string, bool>();
-    public async Task ProcessDataAsync(string key)
+    public async Task ProcessDataAsync(string key, string data)
     {
-        ProcessedData.Add(key, false);
+        _cacheService.Set(key, "", 5);
         await Task.Delay(TimeSpan.FromSeconds(60));
-        ProcessedData[key] = true;
+        _cacheService.Set(key, data, 5);
     }
 
     public string GetData(string key)
     {
-        if (!ProcessedData.TryGetValue(key, out bool value))
-        {
-            throw new DataNotFoundException();
-        }
-
-        if (!value)
-        {
-            throw new ProcessingPendingException();
-        }
-
-        return value.ToString();
-    }
-
-    public IDataProcessingService.Status GetStatus(string key)
-    {
-        if (!ProcessedData.TryGetValue(key, out bool value))
+        var val = _cacheService.Get(key);
+        if (val == null)
         {
             throw new DataNotFoundException();
         }
         
-        return value? IDataProcessingService.Status.Completed : IDataProcessingService.Status.Processing; 
+        if (val == "")
+        {
+            throw new ProcessingPendingException();
+        }
+
+        return val;
+    }
+
+    public IDataProcessingService.Status GetStatus(string key)
+    {
+        var val = _cacheService.Get(key);
+        if (val == null)
+        {
+            throw new DataNotFoundException();
+        }
+
+        
+        return val == "" ? IDataProcessingService.Status.Processing : IDataProcessingService.Status.Completed; 
     }
 }

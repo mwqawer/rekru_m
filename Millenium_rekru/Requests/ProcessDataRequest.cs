@@ -1,6 +1,6 @@
 namespace Millenium_rekru.Requests;
 
-public class ProcessDataRquest
+public class ProcessDataRequest
 {
-    
+    public string Data { get; set; }
 }

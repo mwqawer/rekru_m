@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Millenium_rekru.Exceptions;
+using Millenium_rekru.Requests;
 using Millenium_rekru.Services;
 
 namespace Millenium_rekru.Controllers;
@@ -9,12 +10,12 @@ namespace Millenium_rekru.Controllers;
 public class DataController(IDataProcessingService processingService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Post()
+    public async Task<IActionResult> Post([FromBody]ProcessDataRequest request)
     {
         var guid = Guid.NewGuid().ToString();
-        processingService.ProcessDataAsync(guid);
+        processingService.ProcessDataAsync(guid, request.Data);
 
-        return Accepted(guid);
+        return Accepted(guid+"/status");
     }
     
     [HttpGet("{key}")]

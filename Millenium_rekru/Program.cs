@@ -1,4 +1,5 @@
 using Millenium_rekru.Middlewares;
+using Millenium_rekru.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddScoped<IDataProcessingService, DataProcessingService>();
 // app.UseHttpsRedirection();
 
 
